@@ -1,4 +1,6 @@
 #include "helpers.h"
+#include <math.h>
+#include <stdio.h>
 
 #define IS_DEF_MAX_MIN 1
 
@@ -23,6 +25,11 @@ static void swap(RGBTRIPLE *pix1, RGBTRIPLE *pix2){
     *pix1 = *pix2;
     *pix2 = temp;
 }
+
+// Sobel convolution matrix/weights.
+int Gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+int Gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+
 
 // Convert image to grayscale
 void grayscale(int height, int width, RGBTRIPLE image[height][width])
@@ -105,6 +112,56 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
 // Detect edges
 void edges(int height, int width, RGBTRIPLE image[height][width])
 {
-    
+    RGBTRIPLE (*temp_img)[width] = image; 
+
+
+    for(int h = 0; h < height; h++){
+        for(int w = 0; w < width; w++){
+            
+            int x_blue_channel = 0, x_green_channel = 0, x_red_channel = 0;
+            int y_blue_channel = 0, y_green_channel = 0, y_red_channel = 0;
+            int gh = 0;
+            for(int i = h-1; i <= h+1; i++){
+                int gw = 0;
+                for(int j = w-1; j <= w+1; j++){
+                    if((i < 0 || j < 0) || (i > height-1 || j > width-1)){
+                        x_blue_channel += 0;
+                        x_green_channel += 0;
+                        x_red_channel += 0;
+
+                        y_blue_channel += 0;
+                        y_green_channel += 0;
+                        y_red_channel += 0;
+
+                    }
+
+                    else{
+                    // printf("%d %d => %d %d      ", i, j, gh, gw);
+                        x_blue_channel += (temp_img[i][j].rgbtBlue*Gx[gh][gw]);
+                        x_green_channel += (temp_img[i][j].rgbtGreen*Gx[gh][gw]);
+                        x_red_channel += (temp_img[i][j].rgbtRed*Gx[gh][gw]);
+
+                        y_blue_channel += (temp_img[i][j].rgbtBlue*Gy[gh][gw]);
+                        y_green_channel += (temp_img[i][j].rgbtGreen*Gy[gh][gw]);
+                        y_red_channel += (temp_img[i][j].rgbtRed*Gy[gh][gw]);
+                    }
+                    gw++;
+                }
+                // printf("\n");
+                gh++;
+            }
+            // printf("\n");
+
+            int G_blue = min(255, (int)sqrt( (x_blue_channel*x_blue_channel) + (y_blue_channel*y_blue_channel)));
+            int G_green = min(255, (int)sqrt( (x_green_channel*x_green_channel) + (y_green_channel*y_green_channel)));
+            int G_red = min(255, (int)sqrt( (x_red_channel*x_red_channel) + (y_red_channel*y_red_channel)));
+
+            // put into the original.
+            image[h][w].rgbtBlue = (BYTE)(G_blue);
+            image[h][w].rgbtGreen = (BYTE)(G_green);
+            image[h][w].rgbtRed = (BYTE)(G_red);
+        }
+    }
+
     return;
 }
