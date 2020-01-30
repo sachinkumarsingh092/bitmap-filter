@@ -1,6 +1,8 @@
 #include "helpers.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define IS_DEF_MAX_MIN 1
 
@@ -133,17 +135,18 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
                         y_green_channel += 0;
                         y_red_channel += 0;
 
+                        // or simpy continue
                     }
 
                     else{
                     // printf("%d %d => %d %d      ", i, j, gh, gw);
-                        x_blue_channel += (temp_img[i][j].rgbtBlue*Gx[gh][gw]);
-                        x_green_channel += (temp_img[i][j].rgbtGreen*Gx[gh][gw]);
-                        x_red_channel += (temp_img[i][j].rgbtRed*Gx[gh][gw]);
+                        x_blue_channel += (temp_img[i][j].rgbtBlue)*Gx[gh][gw];
+                        x_green_channel += (temp_img[i][j].rgbtGreen)*Gx[gh][gw];
+                        x_red_channel += (temp_img[i][j].rgbtRed)*Gx[gh][gw];
 
-                        y_blue_channel += (temp_img[i][j].rgbtBlue*Gy[gh][gw]);
-                        y_green_channel += (temp_img[i][j].rgbtGreen*Gy[gh][gw]);
-                        y_red_channel += (temp_img[i][j].rgbtRed*Gy[gh][gw]);
+                        y_blue_channel += (temp_img[i][j].rgbtBlue)*Gy[gh][gw];
+                        y_green_channel += (temp_img[i][j].rgbtGreen)*Gy[gh][gw];
+                        y_red_channel += (temp_img[i][j].rgbtRed)*Gy[gh][gw];
                     }
                     gw++;
                 }
