@@ -112,6 +112,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
 }
 
 // Detect edges
+// see https://en.wikipedia.org/wiki/Sobel_operator
 void edges(int height, int width, RGBTRIPLE image[height][width])
 {
     RGBTRIPLE (*temp_img)[width] = image; 
@@ -126,6 +127,8 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
             for(int i = h-1; i <= h+1; i++){
                 int gw = 0;
                 for(int j = w-1; j <= w+1; j++){
+
+                    // edge cases
                     if((i < 0 || j < 0) || (i > height-1 || j > width-1)){
                         x_blue_channel += 0;
                         x_green_channel += 0;
@@ -139,7 +142,6 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
                     }
 
                     else{
-                    // printf("%d %d => %d %d      ", i, j, gh, gw);
                         x_blue_channel += (temp_img[i][j].rgbtBlue)*Gx[gh][gw];
                         x_green_channel += (temp_img[i][j].rgbtGreen)*Gx[gh][gw];
                         x_red_channel += (temp_img[i][j].rgbtRed)*Gx[gh][gw];
@@ -150,11 +152,10 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
                     }
                     gw++;
                 }
-                // printf("\n");
                 gh++;
             }
-            // printf("\n");
 
+            // capping value to 255
             int G_blue = min(255, (int)sqrt( (x_blue_channel*x_blue_channel) + (y_blue_channel*y_blue_channel)));
             int G_green = min(255, (int)sqrt( (x_green_channel*x_green_channel) + (y_green_channel*y_green_channel)));
             int G_red = min(255, (int)sqrt( (x_red_channel*x_red_channel) + (y_red_channel*y_red_channel)));
