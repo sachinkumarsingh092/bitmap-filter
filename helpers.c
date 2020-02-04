@@ -115,57 +115,76 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
 // see https://en.wikipedia.org/wiki/Sobel_operator
 void edges(int height, int width, RGBTRIPLE image[height][width])
 {
-    RGBTRIPLE (*temp_img)[width] = image; 
-
-
-    for(int h = 0; h < height; h++){
-        for(int w = 0; w < width; w++){
-            
-            int x_blue_channel = 0, x_green_channel = 0, x_red_channel = 0;
-            int y_blue_channel = 0, y_green_channel = 0, y_red_channel = 0;
-            int gh = 0;
-            for(int i = h-1; i <= h+1; i++){
-                int gw = 0;
-                for(int j = w-1; j <= w+1; j++){
-
-                    // edge cases
-                    if((i < 0 || j < 0) || (i > height-1 || j > width-1)){
-                        x_blue_channel += 0;
-                        x_green_channel += 0;
-                        x_red_channel += 0;
-
-                        y_blue_channel += 0;
-                        y_green_channel += 0;
-                        y_red_channel += 0;
-
-                        // or simpy continue
+     // Allocate memory to keep track of original data
+    int orig_height = height,  orig_width = width;
+    RGBTRIPLE(*temp_img)[width] = calloc(height, width * sizeof(RGBTRIPLE));
+    memcpy(temp_img, image, sizeof(RGBTRIPLE) * height * width);
+ 
+    height--;
+    width--;
+ 
+    while (height + 1)
+    {
+        while (width + 1)
+        {
+            // Gx and Gy variables for each color for the current pixel
+            int x_Green_channel = 0, x_Blue_channel = 0, x_Red_channel = 0;
+            int y_Green_channel = 0, y_Blue_channel = 0, y_Red_channel = 0;
+ 
+            // Iterate over all pixels in a 3x3 square around the current pixel
+            for (int i = width - 1; i <= width + 1; i++)
+            {
+                for (int j = height - 1; j <= height + 1; j++)
+                {
+                    // Determine indices for Gx/Gy matrices
+                    int gw = 1, gh = 1;
+                    if (i != width)
+                    {
+                        gw = i < width ? 0 : 2;
                     }
-
-                    else{
-                        x_blue_channel += (temp_img[i][j].rgbtBlue)*Gx[gh][gw];
-                        x_green_channel += (temp_img[i][j].rgbtGreen)*Gx[gh][gw];
-                        x_red_channel += (temp_img[i][j].rgbtRed)*Gx[gh][gw];
-
-                        y_blue_channel += (temp_img[i][j].rgbtBlue)*Gy[gh][gw];
-                        y_green_channel += (temp_img[i][j].rgbtGreen)*Gy[gh][gw];
-                        y_red_channel += (temp_img[i][j].rgbtRed)*Gy[gh][gw];
+                    if (j != height)
+                    {
+                        gh = j < height ? 0 : 2;
                     }
-                    gw++;
+ 
+                    // If border is black pixel
+                    if (i < 0 || j < 0 || i >= orig_width || j >= orig_height)
+                    {
+                        x_Green_channel += Gx[gw][gh] * 0;
+                        x_Blue_channel += Gx[gw][gh] * 0;
+                        x_Red_channel += Gx[gw][gh] * 0;
+ 
+                        y_Green_channel += Gy[gw][gh] * 0;
+                        y_Blue_channel += Gy[gw][gh] * 0;
+                        y_Red_channel += Gy[gw][gh] * 0;
+                    }
+                    else
+                    {
+                        x_Green_channel += Gx[gw][gh] * temp_img[j][i].rgbtRed;
+                        x_Blue_channel += Gx[gw][gh] * temp_img[j][i].rgbtGreen;
+                        x_Red_channel += Gx[gw][gh] * temp_img[j][i].rgbtBlue;
+ 
+                        y_Green_channel += Gy[gw][gh] * temp_img[j][i].rgbtRed;
+                        y_Blue_channel += Gy[gw][gh] * temp_img[j][i].rgbtGreen;
+                        y_Red_channel += Gy[gw][gh] * temp_img[j][i].rgbtBlue;
+                    }
                 }
-                gh++;
             }
-
-            // capping value to 255
-            int G_blue = min(255, (int)sqrt( (x_blue_channel*x_blue_channel) + (y_blue_channel*y_blue_channel)));
-            int G_green = min(255, (int)sqrt( (x_green_channel*x_green_channel) + (y_green_channel*y_green_channel)));
-            int G_red = min(255, (int)sqrt( (x_red_channel*x_red_channel) + (y_red_channel*y_red_channel)));
-
-            // put into the original.
-            image[h][w].rgbtBlue = (BYTE)(G_blue);
-            image[h][w].rgbtGreen = (BYTE)(G_green);
-            image[h][w].rgbtRed = (BYTE)(G_red);
+ 
+            // Combine Gx and Gy to sqrt(Gx^2 + Gy^2) and cap at 255
+            int Gxy_Red = min(255, round(sqrt(pow(x_Green_channel, 2) + pow(y_Green_channel, 2))));
+            int Gxy_Green = min(255, round(sqrt(pow(x_Blue_channel, 2) + pow(y_Blue_channel, 2))));
+            int Gxy_Blue = min(255, round(sqrt(pow(x_Red_channel, 2) + pow(y_Red_channel, 2))));
+ 
+            image[height][width].rgbtRed = (BYTE)(Gxy_Red);
+            image[height][width].rgbtGreen = (BYTE)(Gxy_Green);
+            image[height][width].rgbtBlue = (BYTE)(Gxy_Blue);
+ 
+            width--;
         }
+        width = orig_width - 1;
+        height--;
     }
-
+    free(temp_img);
     return;
 }
