@@ -15,6 +15,10 @@ Filters for 24 bit uncompressed bitmap images. Available filters are:
 ```
 $ git clone https://github.com/sachinkumarsingh092/bitmap-filter.git
 ```
+- Change the current directory to `bitmap-filter`
+```
+$ cd bitmap-filter
+```
 - Use **`make`** to build the executable.
 ```
 $ make
@@ -58,5 +62,5 @@ $ ./filter -e input.bmp output.bmp
 # To-Do
 
 - [ ] Write a help option.
-- [ ] Write a function to check the compatibility of the image to be converted.
+- [ ] Write a function/script to check the compatibility of the image to be converted.
 
