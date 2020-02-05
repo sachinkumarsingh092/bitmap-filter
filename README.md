@@ -27,7 +27,7 @@ $ make
   ```
   $ make clean
   ```
-You will need to install **`clang`** if not already available. To use **`gcc`** compiler make changes in **make** accordingly.
+You will need to install **`clang`** if not already available. To use **`gcc`** compiler make changes in **Makefile** accordingly.
 
 # Usage
 
