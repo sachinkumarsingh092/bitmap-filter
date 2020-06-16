@@ -1,4 +1,7 @@
 # bitmap-filter
+
+[![License](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
+
 Filters for 24 bit uncompressed bitmap images. Available filters are:
 
 - **Grayscale** - Converts the image into a single sample containing only intensity information.
